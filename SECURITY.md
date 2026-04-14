@@ -1,0 +1,6 @@
+# Security Policy
+
+## Reporting a Vulnerability
+
+Please reach out to the team using GitHub's own security mechanism to submit an
+anonymous report.
