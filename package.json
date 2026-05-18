@@ -1,0 +1,57 @@
+{
+  "name": "scaffold-stellar-frontend",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail --names stellar,next -c gray,green --pad-prefix \"stellar scaffold watch --build-clients\" \"next dev\"",
+    "dev:web": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "install:contracts": "npm install --workspaces && npm run build --workspaces",
+    "lint": "next lint",
+    "format": "prettier . --write",
+    "prepare": "husky",
+    "typecheck": "tsc --noEmit",
+    "deploy:testnet": "bash ./scripts/deploy-testnet.sh",
+    "contract:test": "cargo test --package stellar-ticket"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "dependencies": {
+    "@creit.tech/stellar-wallets-kit": "^1.9.5",
+    "@stellar/design-system": "^3.2.7",
+    "@stellar/stellar-sdk": "^14.4.3",
+    "@stellar/stellar-xdr-json": "^23.0.0",
+    "@tanstack/react-query": "^5.90.17",
+    "@theahaco/contract-explorer": "^1.1.0",
+    "@theahaco/ts-config": "^1.2.0",
+    "lossless-json": "^4.3.0",
+    "next": "^15.0.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.23",
+    "@types/node": "^22.9.0",
+    "@types/react": "^19.2.10",
+    "@types/react-dom": "^19.2.3",
+    "concurrently": "^9.2.1",
+    "dotenv": "^17.2.3",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^15.0.3",
+    "glob": "^13.0.0",
+    "globals": "^17.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.0",
+    "typescript": "~5.9.3"
+  },
+  "lint-staged": {
+    "**/*": [
+      "prettier --write --ignore-unknown"
+    ]
+  },
+  "prettier": "@theahaco/ts-config/prettier"
+}

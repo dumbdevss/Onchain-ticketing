@@ -1,0 +1,21 @@
+[package]
+name = "stellar-ticket"
+description = "On-chain event ticketing with QR-based gate verification"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+version.workspace = true
+
+[package.metadata.stellar]
+cargo_inherit = true
+
+[lib]
+crate-type = ["cdylib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = "23.0.3"
+
+[dev-dependencies]
+soroban-sdk = { version = "23.0.3", features = ["testutils"] }
