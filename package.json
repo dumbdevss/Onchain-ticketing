@@ -1,57 +1,58 @@
 {
-  "name": "scaffold-stellar-frontend",
-  "version": "0.0.1",
-  "private": true,
+  "name": "stellar-mcp",
+  "version": "0.0.11",
+  "description": "A Stellar MCP to interact with Horizon API and Smart Contracts",
+  "type": "module",
+  "main": "dist/index.js",
+  "issues": "https://github.com/genebson/stellar-mcp/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/syronlabs/stellar-mcp"
+  },
+  "bin": {
+    "stellar-mcp": "dist/index.js"
+  },
   "scripts": {
-    "dev": "concurrently --kill-others-on-fail --names stellar,next -c gray,green --pad-prefix \"stellar scaffold watch --build-clients\" \"next dev\"",
-    "dev:web": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "install:contracts": "npm install --workspaces && npm run build --workspaces",
-    "lint": "next lint",
-    "format": "prettier . --write",
-    "prepare": "husky",
-    "typecheck": "tsc --noEmit",
-    "deploy:testnet": "bash ./scripts/deploy-testnet.sh",
-    "contract:test": "cargo test --package stellar-ticket"
-  },
-  "workspaces": [
-    "packages/*"
-  ],
-  "dependencies": {
-    "@creit.tech/stellar-wallets-kit": "^1.9.5",
-    "@stellar/design-system": "^3.2.7",
-    "@stellar/stellar-sdk": "^14.4.3",
-    "@stellar/stellar-xdr-json": "^23.0.0",
-    "@tanstack/react-query": "^5.90.17",
-    "@theahaco/contract-explorer": "^1.1.0",
-    "@theahaco/ts-config": "^1.2.0",
-    "lossless-json": "^4.3.0",
-    "next": "^15.0.3",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "zod": "^4.3.5"
-  },
-  "devDependencies": {
-    "@types/lodash": "^4.17.23",
-    "@types/node": "^22.9.0",
-    "@types/react": "^19.2.10",
-    "@types/react-dom": "^19.2.3",
-    "concurrently": "^9.2.1",
-    "dotenv": "^17.2.3",
-    "eslint": "^9.39.2",
-    "eslint-config-next": "^15.0.3",
-    "glob": "^13.0.0",
-    "globals": "^17.0.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.7",
-    "prettier": "^3.8.0",
-    "typescript": "~5.9.3"
+    "start:dev": "tsx src/index.ts",
+    "start:prod": "npm run clean && npm run build && node dist/index.js",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix --max-warnings=0",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "clean": "rm -rf dist",
+    "build": "tsc",
+    "test": "jest src",
+    "prepare": "husky install"
   },
   "lint-staged": {
-    "**/*": [
-      "prettier --write --ignore-unknown"
+    "src/**/*.ts": [
+      "prettier --write",
+      "eslint --fix"
     ]
   },
-  "prettier": "@theahaco/ts-config/prettier"
+  "author": "Mauricio Genebrieres",
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.7.0",
+    "@stellar/stellar-sdk": "^13.1.0",
+    "dotenv": "^16.4.7",
+    "zod": "^3.24.2",
+    "zod-to-json-schema": "^3.24.5"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.13.13",
+    "@typescript-eslint/eslint-plugin": "^8.28.0",
+    "@typescript-eslint/parser": "^8.28.0",
+    "eslint": "^9.23.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.5",
+    "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "lint-staged": "^15.5.0",
+    "prettier": "^3.5.3",
+    "ts-jest": "^29.3.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
 }

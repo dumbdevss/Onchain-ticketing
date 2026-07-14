@@ -1,25 +1,35 @@
-import { config } from "@theahaco/ts-config/eslint"
-import { globalIgnores } from "eslint/config"
-import globals from "globals"
+import typescriptPlugin from '@typescript-eslint/eslint-plugin';
+import typescriptParser from '@typescript-eslint/parser';
+import prettierConfig from 'eslint-config-prettier';
+import prettierPlugin from 'eslint-plugin-prettier';
 
-/** @type {import("eslint").Linter.Config[]} */
 export default [
-	globalIgnores([
-		"dist",
-		"packages",
-		"target/packages",
-		"src/contracts/*",
-		"!src/contracts/util.ts",
-	]),
-	...config,
-	{
-		files: ["**/*.{ts,tsx}"],
-		languageOptions: {
-			ecmaVersion: 2020,
-			globals: globals.browser,
-			parserOptions: {
-				tsconfigRoot: import.meta.dirname,
-			},
-		},
-	},
-]
+  {
+    files: ['**/*.ts'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        project: './tsconfig.json',
+        sourceType: 'module',
+      },
+      globals: {
+        node: true,
+        jest: true,
+      },
+    },
+    plugins: {
+      '@typescript-eslint': typescriptPlugin,
+      prettier: prettierPlugin,
+    },
+    rules: {
+      '@typescript-eslint/interface-name-prefix': 'off',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  prettierConfig,
+  {
+    ignores: ['.eslintrc.js', 'data/docker/**'],
+  },
+];

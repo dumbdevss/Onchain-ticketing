@@ -1,440 +1,619 @@
-# StellarTicket — On-Chain Event Ticketing & QR Verification
+# 🌟 Stellar MCP
 
-> Mint event tickets as Stellar tokens, share them via QR code, and verify entry on-chain — no fraud, no double entries, no middlemen.
+A Model Context Protocol server that provides Stellar blockchain interaction capabilities. This server enables LLMs to interact with both Stellar Classic and Soroban smart contracts, manage accounts, and perform various blockchain operations.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Network: Stellar Testnet](https://img.shields.io/badge/Network-Stellar%20Testnet-blueviolet)](https://stellar.org)
-[![Contract: Soroban](https://img.shields.io/badge/Contract-Soroban-orange)](https://soroban.stellar.org)
+## 🧩 Components
 
----
+### 🛠️ Tools
 
-## What is this?
+#### 💫 Stellar Classic Operations
 
-StellarTicket replaces paper tickets and centralised ticketing platforms with a fully on-chain system built on Stellar. Each ticket is a unique token minted by a Soroban smart contract. Attendees receive a QR code that encodes a signed ticket payload. At the gate, the organiser scans the QR code — the contract verifies ownership and marks the ticket as used, preventing double entry.
+- **stellar_create_account**
 
-**Why this matters in Nigeria and Africa:** Ticket fraud is widespread at concerts, conferences, and sporting events. A blockchain-backed system makes every ticket traceable, unforgeable, and verifiable offline-capable.
+  - Create a new Stellar account
 
-**Why Stellar:** The same reasons as StellarPay — fast finality, near-zero fees, and a developer-friendly smart contract platform (Soroban).
+- **stellar_balance**
 
----
+  - Get the balance of a Stellar account
+  - Input: `account` (string): The public key of the account to check balance
 
-## Demo flow
+- **stellar_payment**
 
+  - Send a payment to another account
+  - Inputs:
+    - `destination` (string, required): The destination account public key
+    - `amount` (string, required): The amount to send
+    - `secretKey` (string, required): The secret key of the source account
+    - `asset` (object, optional): Custom asset details
+      - `code` (string): The asset code
+      - `issuer` (string): The asset issuer public key
+
+- **stellar_transactions**
+
+  - Get transaction history for an account
+  - Input: `account` (string): The account public key to get transactions for
+
+- **stellar_create_asset**
+
+  - Create a new asset on the Stellar network
+  - Inputs:
+    - `code` (string, required): The asset code
+    - `issuerSecretKey` (string, required): The secret key of the issuing account
+    - `distributorSecretKey` (string, required): The secret key of the distributing account
+    - `totalSupply` (string, required): The total supply of the asset
+
+- **stellar_change_trust**
+
+  - Change trustline for an asset
+  - Inputs:
+    - `asset` (object, required):
+      - `code` (string, required): The asset code
+      - `issuer` (string, required): The asset issuer public key
+    - `limit` (string, required): The trust limit
+    - `secretKey` (string, required): The secret key of the account changing trust
+
+- **stellar_create_claimable_balance**
+
+  - Create a claimable balance that can be claimed by specified accounts under certain conditions
+  - Inputs:
+    - `asset` (object, optional): Custom asset details. If not provided, uses native XLM
+      - `code` (string): The asset code (e.g., "USD", "EUR")
+      - `issuer` (string): The asset issuer public key
+    - `amount` (string, required): Amount to lock in the claimable balance
+    - `claimants` (array, required): List of accounts that can claim this balance
+      - `destination` (string): Public key of the account that can claim
+      - `predicate` (object): Conditions for claiming
+        - `type` (string): One of: "UNCONDITIONAL", "BEFORE_RELATIVE_TIME", "BEFORE_ABSOLUTE_TIME", "NOT", "AND", "OR"
+        - `value` (number or array): For time predicates: seconds/timestamp, for compound predicates: array of predicates
+    - `secretKey` (string, required): Secret key of the account creating the balance
+
+- **stellar_claim_claimable_balance**
+
+  - Claim a claimable balance using its ID
+  - Inputs:
+    - `balanceId` (string, required): ID of the claimable balance to claim (returned from createClaimableBalance)
+    - `secretKey` (string, required): Secret key of the claiming account (must be one of the claimants)
+
+- **stellar_fund_account**
+  - Fund a test account using the Friendbot (testnet only)
+  - Input: `publicKey` (string): The public key of the account to fund
+
+#### 📝 Soroban Smart Contract Operations
+
+- **soroban_build_and_optimize**
+
+  - Build and optimize Soroban smart contracts
+  - Inputs:
+    - `contractPath` (string, optional): The path to the contract directory. Defaults to current working directory
+  - Outputs:
+    - Build logs and compilation status
+    - List of optimized WASM files
+    - Optimization results for each contract
+  - Features:
+    - Automatically builds contracts using `stellar contract build`
+    - Finds all WASM files in the target directory
+    - Optimizes each WASM file using `stellar contract optimize`
+    - Provides detailed logs of the entire process
+
+- **soroban_deploy**
+
+  - Deploy Soroban smart contracts to the Stellar network
+  - Inputs:
+    - `wasmPath` (string, required): Path to the compiled WASM file
+    - `secretKey` (string, required): Secret key of the deploying account
+    - `constructorArgs` (array, optional): Arguments for contract constructor if applicable
+      - Each argument should be an object with:
+        - `name` (string): Name of the constructor parameter
+        - `type` (string): Type of the argument (e.g., "Address", "String", etc.)
+        - `value` (string): Value of the argument
+  - Outputs:
+    - Contract ID (starts with "C" followed by 55 characters)
+    - Deployment status messages
+    - Transaction details
+  - Features:
+    - Automatically detects if contract has a constructor
+    - Validates constructor arguments before deployment
+    - Throws error if constructor arguments are missing for contracts that require them
+    - Provides detailed deployment logs and status updates
+    - Supports both simple contracts and contracts with initialization logic
+  - Example Usage:
+
+    ```typescript
+    // Deploying a contract without constructor
+    await soroban.deploy({
+      wasmPath: 'path/to/hello_world.wasm',
+      secretKey: 'S...',
+    });
+
+    // Deploying a contract with constructor
+    await soroban.deploy({
+      wasmPath: 'path/to/contract_with_constructor.wasm',
+      secretKey: 'S...',
+      constructorArgs: [
+        {
+          name: 'admin',
+          type: 'Address',
+          value: 'G...',
+        },
+      ],
+    });
+    ```
+
+- **soroban_retrieve_contract_methods**
+
+  - Retrieve the complete interface of a deployed Soroban smart contract
+  - Inputs:
+    - `contractAddress` (string, required): Address of the deployed contract (starts with "C")
+    - `secretKey` (string, required): Secret key of the account making the query
+  - Outputs:
+    - A structured ContractInterface object containing:
+      - `name`: The name of the contract
+      - `methods`: Array of contract methods, each containing:
+        - `name`: Method name
+        - `parameters`: Array of parameters with:
+          - `name`: Parameter name
+          - `type`: Parameter type, which can be:
+            - Primitive types (u32, i32, u64, i64, u128, i128, bool)
+            - Soroban types (Address, String, Bytes, BytesN, Duration, Timepoint)
+            - Custom structs (Data, ComplexData, etc.)
+            - Collections (Vec<T>, Map<K, V>)
+            - Optional types (Option<T>)
+            - Tuples ((T1, T2, ...))
+            - Result types (Result<T, E>)
+        - `returnType`: Return type of the method, which can be:
+          - Void (())
+          - Single type (T)
+          - Tuple ((T1, T2, ...))
+          - Result (Result<T, E>)
+      - `structs`: Array of contract structs, each containing:
+        - `name`: Struct name
+        - `fields`: Array of fields with name, type, and visibility
+      - `enums`: Array of contract enums, each containing:
+        - `name`: Enum name
+        - `variants`: Array of variants with:
+          - `name`: Variant name
+          - `value`: Optional numeric value (for C-style enums)
+          - `dataType`: Optional data type for variants with associated data
+        - `isError`: Boolean indicating if it's an error enum
+  - Features:
+    - Supports all Soroban data types (primitives, structs, nested structs, enums)
+    - Provides complete contract interface including methods, structs, and enums
+    - Handles complex data types and nested structures
+    - Returns a structured JSON representation of the contract interface
+    - Automatically filters out the `env` parameter from method signatures (provided by the Soroban blockchain)
+    - Supports various enum types:
+      - Simple enums (no associated data)
+      - C-style enums (with numeric values)
+      - Enums with single data type
+      - Enums with tuple data types
+      - Error enums (marked with #[contracterror])
+  - Example Usage:
+
+    ```typescript
+    const result = await soroban.retrieveContractMethods({
+      contractAddress:
+        'CACLOQNDBVG2Q7VRQGOKC4THZ34FHW2PUYQQOAVBSLJEV6VHEF3ZCIPO',
+    });
+
+    // Example response:
+    [
+      {
+        type: 'text',
+        text: '🚀 Retrieving contract methods for address: CACLOQNDBVG2Q7VRQGOKC4THZ34FHW2PUYQQOAVBSLJEV6VHEF3ZCIPO',
+      },
+      {
+        type: 'text',
+        text: 'Interface retrieved successfully',
+      },
+      {
+        type: 'text',
+        text: 'Contract Interface',
+      },
+      {
+        type: 'text',
+        text: JSON.stringify(
+          {
+            name: 'Contract',
+            methods: [
+              {
+                name: 'set_admin',
+                parameters: [{ name: 'admin', type: 'Address' }],
+                returnType: '()',
+              },
+              {
+                name: 'get_admin',
+                parameters: [],
+                returnType: 'Address',
+              },
+              {
+                name: 'method_with_args',
+                parameters: [
+                  { name: 'arg1', type: 'u32' },
+                  { name: 'arg2', type: 'u32' },
+                ],
+                returnType: '(u32, u32)',
+              },
+              {
+                name: 'handle_integers',
+                parameters: [
+                  { name: 'i32_val', type: 'i32' },
+                  { name: 'i64_val', type: 'i64' },
+                  { name: 'i128_val', type: 'i128' },
+                  { name: 'i256_val', type: 'I256' },
+                  { name: 'u32_val', type: 'u32' },
+                  { name: 'u64_val', type: 'u64' },
+                  { name: 'u128_val', type: 'u128' },
+                  { name: 'u256_val', type: 'U256' },
+                ],
+                returnType: '(i32, u32)',
+              },
+              {
+                name: 'handle_strings',
+                parameters: [
+                  { name: 'str_val', type: 'String' },
+                  { name: 'bytes_val', type: 'Bytes' },
+                  { name: 'bytes_n_val', type: 'BytesN<32>' },
+                ],
+                returnType: 'String',
+              },
+              {
+                name: 'handle_collections',
+                parameters: [
+                  { name: 'map', type: 'Map<String, u32>' },
+                  { name: 'vec', type: 'Vec<u32>' },
+                ],
+                returnType: '(Map<String, u32>, Vec<u32>)',
+              },
+              {
+                name: 'handle_custom_types',
+                parameters: [
+                  { name: 'data', type: 'Data' },
+                  { name: 'complex_data', type: 'ComplexData' },
+                ],
+                returnType: '(Data, ComplexData)',
+              },
+              {
+                name: 'handle_optionals',
+                parameters: [
+                  { name: 'maybe_u32', type: 'Option<u32>' },
+                  { name: 'maybe_address', type: 'Option<Address>' },
+                ],
+                returnType: 'OptionalData',
+              },
+              {
+                name: 'get_admin_from_storage',
+                parameters: [],
+                returnType: 'Result<Address, ContractError>',
+              },
+            ],
+            structs: [
+              {
+                name: 'Data',
+                fields: [
+                  { name: 'admin', type: 'Address', visibility: 'pub' },
+                  { name: 'counter', type: 'u32', visibility: 'pub' },
+                  { name: 'message', type: 'String', visibility: 'pub' },
+                ],
+              },
+              {
+                name: 'ComplexData',
+                fields: [
+                  { name: 'admin', type: 'Address', visibility: 'pub' },
+                  { name: 'data', type: 'Data', visibility: 'pub' },
+                  { name: 'bytes', type: 'Bytes', visibility: 'pub' },
+                  { name: 'bytes_n', type: 'BytesN<32>', visibility: 'pub' },
+                  { name: 'duration', type: 'Duration', visibility: 'pub' },
+                  { name: 'map', type: 'Map<String, u32>', visibility: 'pub' },
+                  { name: 'symbol', type: 'Symbol', visibility: 'pub' },
+                  { name: 'timepoint', type: 'Timepoint', visibility: 'pub' },
+                  { name: 'vec', type: 'Vec<u32>', visibility: 'pub' },
+                ],
+              },
+              {
+                name: 'OptionalData',
+                fields: [
+                  { name: 'maybe_u32', type: 'Option<u32>', visibility: 'pub' },
+                  {
+                    name: 'maybe_address',
+                    type: 'Option<Address>',
+                    visibility: 'pub',
+                  },
+                ],
+              },
+            ],
+            enums: [
+              {
+                name: 'DataKey',
+                variants: [
+                  { name: 'Admin' },
+                  { name: 'Counter' },
+                  { name: 'Data' },
+                  { name: 'Account', dataType: 'Address' },
+                  { name: 'Contract', dataType: '(Address, u64)' },
+                ],
+                isError: false,
+              },
+              {
+                name: 'ContractError',
+                variants: [
+                  { name: 'AdminNotFound', value: 1 },
+                  { name: 'InvalidValue', value: 2 },
+                  { name: 'OptionNotFound', value: 3 },
+                ],
+                isError: true,
+              },
+            ],
+          },
+          null,
+          2,
+        ),
+      },
+    ];
+    ```
+
+    ### Method Parameter Types
+
+    The parser supports various parameter and return types. Note that the `env` parameter is automatically filtered out from the interface as it is provided by the Soroban blockchain environment.
+
+    1. **Primitive Types**
+
+    ```rust
+    fn handle_primitives(value: u32, flag: bool) -> u64;
+    ```
+
+    Parsed as:
+
+    ```json
+    {
+      "name": "handle_primitives",
+      "parameters": [
+        { "name": "value", "type": "u32" },
+        { "name": "flag", "type": "bool" }
+      ],
+      "returnType": "u64"
+    }
+    ```
+
+    2. **Custom Struct Types**
+
+    ```rust
+    fn handle_struct(data: Data) -> Data;
+    ```
+
+    Parsed as:
+
+    ```json
+    {
+      "name": "handle_struct",
+      "parameters": [{ "name": "data", "type": "Data" }],
+      "returnType": "Data"
+    }
+    ```
+
+    3. **Collections**
+
+    ```rust
+    fn handle_collections(map: Map<String, u32>, vec: Vec<u32>) -> (Map<String, u32>, Vec<u32>);
+    ```
+
+    Parsed as:
+
+    ```json
+    {
+      "name": "handle_collections",
+      "parameters": [
+        { "name": "map", "type": "Map<String, u32>" },
+        { "name": "vec", "type": "Vec<u32>" }
+      ],
+      "returnType": "(Map<String, u32>, Vec<u32>)"
+    }
+    ```
+
+    4. **Optional Types**
+
+    ```rust
+    fn handle_optionals(maybe_u32: Option<u32>, maybe_address: Option<Address>) -> OptionalData;
+    ```
+
+    Parsed as:
+
+    ```json
+    {
+      "name": "handle_optionals",
+      "parameters": [
+        { "name": "maybe_u32", "type": "Option<u32>" },
+        { "name": "maybe_address", "type": "Option<Address>" }
+      ],
+      "returnType": "OptionalData"
+    }
+    ```
+
+    5. **Result Types**
+
+    ```rust
+    fn handle_result() -> Result<Address, ContractError>;
+    ```
+
+    Parsed as:
+
+    ```json
+    {
+      "name": "handle_result",
+      "parameters": [],
+      "returnType": "Result<Address, ContractError>"
+    }
+    ```
+
+    6. **Complex Types**
+
+    ```rust
+    fn handle_complex(data: ComplexData) -> (Data, ComplexData);
+    ```
+
+    Parsed as:
+
+    ```json
+    {
+      "name": "handle_complex",
+      "parameters": [{ "name": "data", "type": "ComplexData" }],
+      "returnType": "(Data, ComplexData)"
+    }
+    ```
+
+    ### Note About the Env Parameter
+
+    All contract methods in Soroban receive an `env` parameter that provides access to the blockchain environment. This parameter is automatically provided by the Soroban blockchain and is filtered out from the interface. For example, a method defined as:
+
+    ```rust
+    fn set_admin(env: Env, admin: Address) -> ();
+    ```
+
+    Will appear in the interface as:
+
+    ```json
+    {
+      "name": "set_admin",
+      "parameters": [{ "name": "admin", "type": "Address" }],
+      "returnType": "()"
+    }
+    ```
+
+## ⭐ Key Features
+
+- 👤 Account management (creation, funding, balance checking)
+- 🪙 Asset operations (creation, trustlines)
+- 💸 Payment processing
+- 📝 Transaction history retrieval
+- 📱 Smart contract deployment and interaction
+- 🌐 Support for both Stellar Classic and Soroban
+
+## ⚙️ Configuration
+
+### 🔑 Environment Variables
+
+Create a `.env` file with the following configuration:
+
+```env
+STELLAR_SERVER_URL=
 ```
-Organiser
-  1. Visits /events/create        →  fills in event name, date, venue, capacity, ticket price
-  2. Connects Freighter wallet    →  authenticated as event organiser
-  3. Submits form                 →  event + ticket supply minted on Soroban contract
-  4. Shares event page link       →  /events/:eventId
 
-Attendee
-  5. Opens /events/:eventId       →  sees event details + "Buy ticket" button
-  6. Connects Freighter wallet    →  authenticates as buyer
-  7. Pays in XLM or USDC         →  x402 payment flow (same as invoice system)
-  8. Contract mints ticket token  →  unique ticket ID assigned
-  9. Receives QR code             →  /tickets/:ticketId  (or downloaded PNG)
+### 🔧 Configuration to use Stellar MCP Server
 
-At the gate
-  10. Organiser opens /scan       →  camera-based QR scanner in the browser
-  11. Scans attendee's QR         →  decodes ticket ID + signature
-  12. Contract verifies + marks   →  ticket status set to "used"
-  13. Scanner shows green / red   →  entry granted or denied
+Here's the configuration to use the Stellar MCP server on Cursor, Windsurf, Claude Desktop:
+
+#### 💻 Local
+
+```json
+{
+  "mcpServers": {
+    "stellar-mcp": {
+      "command": "node",
+      "args": ["your/path/stellar-mcp/dist/index.js"]
+    }
+  }
+}
 ```
 
----
+#### 📦 NPX
 
-## Architecture
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│                      Next.js Frontend                        │
-│                                                              │
-│   /events/create        Create event + mint ticket supply    │
-│   /events/:id           Public event page + buy flow         │
-│   /tickets/:id          Attendee's ticket + QR code          │
-│   /scan                 Organiser gate scanner               │
-│   /dashboard            Organiser's event + sales overview   │
-└───────────────────────────────┬──────────────────────────────┘
-                                │ REST
-┌───────────────────────────────▼──────────────────────────────┐
-│                  API Server  (Express / Node.js)             │
-│                                                              │
-│   POST /api/events/create         create event              │
-│   GET  /api/events/:id            event details             │
-│   POST /api/tickets/purchase      x402 buy flow             │
-│   POST /api/tickets/verify        verify + scan ticket       │
-│   GET  /api/tickets/:id           ticket details            │
-│   GET  /api/events/:id/tickets    all tickets for event      │
-└───────────────────────────────┬──────────────────────────────┘
-                                │ Soroban RPC
-┌───────────────────────────────▼──────────────────────────────┐
-│                Soroban Smart Contract  (Rust / WASM)         │
-│                                                              │
-│   create_event()     purchase_ticket()    use_ticket()       │
-│   get_event()        get_ticket()         is_used()          │
-│   get_event_tickets() cancel_ticket()     get_organiser_events()│
-└───────────────────────────────┬──────────────────────────────┘
-                                │
-┌───────────────────────────────▼──────────────────────────────┐
-│                       Stellar Network                        │
-│                 XLM  ·  USDC  ·  on-chain settlement         │
-└──────────────────────────────────────────────────────────────┘
+```json
+{
+  "mcpServers": {
+    "stellar-mcp": {
+      "command": "npx",
+      "args": ["-y", "stellar-mcp"]
+    }
+  }
+}
 ```
 
----
+#### 🐳 Docker
 
-## Project structure
-
-```
-stellar-ticket/
-├── contract/                           Soroban smart contract
-│   ├── Cargo.toml
-│   └── src/
-│       └── lib.rs                      Event + ticket logic
-│
-├── api-server/                         REST + x402 payment middleware
-│   ├── server.js                       Express app
-│   ├── qr.js                           QR code generation + signed payload
-│   ├── package.json
-│   └── .env.example
-│
-└── frontend/                           Next.js 14 app (App Router)
-    ├── next.config.mjs
-    ├── tailwind.config.js
-    ├── package.json
-    └── src/
-        ├── app/
-        │   ├── layout.jsx
-        │   ├── events/
-        │   │   ├── create/page.jsx         Create event form
-        │   │   └── [id]/page.jsx           Public event + buy page
-        │   ├── tickets/
-        │   │   └── [id]/page.jsx           Attendee ticket + QR
-        │   ├── scan/page.jsx               Gate scanner
-        │   └── dashboard/page.jsx          Organiser overview
-        └── lib/
-            ├── stellar.js                  Wallet + payment helpers
-            └── qr.js                       QR decode + camera utils
+```json
+{
+  "mcpServers": {
+    "stellar": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--init",
+        "-e",
+        "STELLAR_SERVER_URL=<STELLAR_URL_VALUE>",
+        "stellar-mcp"
+      ]
+    }
+  }
+}
 ```
 
----
-
-## Prerequisites
-
-| Tool | Version | Install |
-|---|---|---|
-| Rust + cargo | stable | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
-| Stellar CLI | latest | `cargo install --locked stellar-cli` |
-| Node.js | 20+ | https://nodejs.org |
-| Freighter wallet | latest | https://freighter.app (Chrome/Firefox extension) |
-
-The `/scan` page uses the browser's `MediaDevices` camera API. Testing it requires a device with a camera or a browser with webcam access. Chrome and Firefox both support this on localhost.
-
----
-
-## Getting started
-
-### 1. Clone the repository
+### 📥 Installation
 
 ```bash
-git clone https://github.com/your-org/stellar-ticket.git
-cd stellar-ticket
-```
-
-### 2. Build and deploy the Soroban contract
-
-```bash
-cd contract
-
-# Add the WASM compilation target
-rustup target add wasm32-unknown-unknown
-
-# Run the test suite
-cargo test --features testutils
-
-# Build the optimised WASM binary
-stellar contract build
-
-# Create and fund a testnet deployer account
-stellar keys generate deployer --network testnet
-stellar keys fund deployer --network testnet
-
-# Deploy — copy the printed contract ID
-stellar contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/stellar_ticket_contract.wasm \
-  --source deployer \
-  --network testnet
-```
-
-### 3. Configure and start the API server
-
-```bash
-cd ../api-server
-cp .env.example .env
-# Paste your CONTRACT_ID into .env
 npm install
-npm run dev
-# Server running on http://localhost:4001
 ```
 
-### 4. Configure and start the frontend
+### 🔨 Build
 
 ```bash
-cd ../frontend
-cp .env.local.example .env.local
-npm install
-npm run dev
-# App running on http://localhost:3001
+npm run build
 ```
 
-### 5. Create your first event
+### 🚀 Run
 
-1. Install Freighter and switch it to **Testnet**.
-2. Fund your address at https://laboratory.stellar.org/#account-creator.
-3. Open http://localhost:3001/events/create.
-4. Fill in event details and submit — your ticket supply is minted on-chain.
-5. Share the event link. Buy a ticket using a second testnet account.
-6. Open `/scan` from the organiser account and scan the QR code to verify entry.
-
----
-
-## Environment variables
-
-### api-server — `.env`
-
-| Variable | Description | Default |
-|---|---|---|
-| `STELLAR_NETWORK` | `testnet` or `mainnet` | `testnet` |
-| `CONTRACT_ID` | Deployed Soroban contract ID | — |
-| `ORGANISER_SECRET` | Server keypair for signing ticket payloads | — |
-| `FRONTEND_URL` | Frontend origin (CORS) | `http://localhost:3001` |
-| `USDC_ISSUER` | USDC issuer address | testnet address |
-| `PORT` | Server port | `4001` |
-
-### frontend — `.env.local`
-
-| Variable | Description | Default |
-|---|---|---|
-| `NEXT_PUBLIC_API_URL` | API server base URL | `http://localhost:4001` |
-| `NEXT_PUBLIC_STELLAR_NETWORK` | `testnet` or `mainnet` | `testnet` |
-
----
-
-## Soroban contract reference
-
-### Data types
-
-```rust
-enum TicketStatus { Valid, Used, Cancelled, Refunded }
-
-struct Event {
-    id: String,
-    organiser: Address,
-    name: String,
-    description: String,
-    venue: String,
-    event_date: u64,         // Unix timestamp
-    ticket_price: i128,      // in stroops
-    ticket_asset: String,    // "XLM" | "USDC"
-    total_supply: u32,
-    tickets_sold: u32,
-    created_at: u64,
-    is_cancelled: bool,
-}
-
-struct Ticket {
-    id: String,
-    event_id: String,
-    owner: Address,
-    status: TicketStatus,
-    purchased_at: u64,
-    used_at: Option<u64>,
-    seat_or_tier: Option<String>,    // e.g. "VIP" | "General"
-    tx_hash: String,                 // purchase transaction hash
-}
-```
-
-### Functions
-
-| Function | Auth required | Description |
-|---|---|---|
-| `create_event(id, organiser, name, description, venue, event_date, ticket_price, ticket_asset, total_supply)` | `organiser` | Creates a new event and allocates supply |
-| `purchase_ticket(ticket_id, event_id, buyer, paid_amount)` | `buyer` | Mints one ticket to the buyer's address |
-| `use_ticket(ticket_id, verifier)` | `organiser` | Marks ticket as used at the gate |
-| `cancel_ticket(ticket_id, owner)` | `owner` | Cancels a valid ticket (for refund flow) |
-| `get_event(event_id)` | none | Returns the full event struct |
-| `get_ticket(ticket_id)` | none | Returns the full ticket struct |
-| `is_used(ticket_id)` | none | Returns a boolean |
-| `get_event_tickets(event_id)` | none | Returns all ticket IDs for an event |
-| `get_organiser_events(organiser)` | none | Returns all event IDs for an organiser |
-| `tickets_remaining(event_id)` | none | Returns `total_supply - tickets_sold` |
-
-### Stellar CLI usage
+Development:
 
 ```bash
-# Create an event
-stellar contract invoke \
-  --id <CONTRACT_ID> --source organiser_key --network testnet \
-  -- create_event \
-  --id '"evt_001"' \
-  --organiser GXXX \
-  --name '"Lagos Tech Summit 2025"' \
-  --description '"Annual technology conference"' \
-  --venue '"Eko Hotel, Lagos"' \
-  --event_date 1750000000 \
-  --ticket_price 100000000 \
-  --ticket_asset '"XLM"' \
-  --total_supply 500
-
-# Purchase a ticket
-stellar contract invoke \
-  --id <CONTRACT_ID> --source buyer_key --network testnet \
-  -- purchase_ticket \
-  --ticket_id '"tkt_abc123"' \
-  --event_id '"evt_001"' \
-  --buyer GYYY \
-  --paid_amount 100000000
-
-# Mark a ticket used at the gate
-stellar contract invoke \
-  --id <CONTRACT_ID> --source organiser_key --network testnet \
-  -- use_ticket \
-  --ticket_id '"tkt_abc123"' \
-  --verifier GXXX
-
-# Check remaining supply
-stellar contract invoke \
-  --id <CONTRACT_ID> --network testnet \
-  -- tickets_remaining --event_id '"evt_001"'
+npm run start:dev
 ```
 
----
-
-## QR code format
-
-Each ticket's QR code encodes a signed JSON payload. The server signs the payload using an HMAC secret so that the scanner can verify authenticity without a network call.
-
-```json
-{
-  "ticketId": "tkt_abc123",
-  "eventId": "evt_001",
-  "owner": "GYYY...",
-  "issuedAt": 1720000000,
-  "sig": "sha256-hmac-hex"
-}
-```
-
-At the gate, the `/scan` page:
-
-1. Decodes the QR payload.
-2. Verifies the HMAC signature (offline-capable).
-3. Makes a single API call to `POST /api/tickets/verify` which calls `use_ticket()` on the contract.
-4. Displays green (valid) or red (already used / invalid signature).
-
----
-
-## REST API reference
-
-All endpoints are served from the API server (default port `4001`).
-
-### `POST /api/events/create`
-
-**Body:**
-```json
-{
-  "name": "Lagos Tech Summit 2025",
-  "description": "Annual technology conference",
-  "venue": "Eko Hotel, Lagos",
-  "eventDate": "2025-10-15T09:00:00Z",
-  "ticketPrice": "10",
-  "ticketAsset": "XLM",
-  "totalSupply": 500,
-  "organiserAddress": "GXXXXXXXXX"
-}
-```
-
-**Response `201`:**
-```json
-{
-  "eventId": "evt_abc123",
-  "eventLink": "http://localhost:3001/events/evt_abc123",
-  "event": { ... }
-}
-```
-
-### `POST /api/tickets/purchase`
-
-Implements the x402 flow. Without `X-Payment` header → returns `402` with payment details. With a valid signed payment in the `X-Payment` header → mints the ticket and returns `201`.
-
-### `POST /api/tickets/verify`
-
-**Body:**
-```json
-{
-  "ticketId": "tkt_abc123",
-  "sig": "hmac-hex",
-  "organiserAddress": "GXXXXXXXXX"
-}
-```
-
-Verifies the HMAC signature, checks ticket status on the contract, calls `use_ticket()`, and returns the result. Returns `200` for a valid first scan, `409` for an already-used ticket, and `401` for an invalid signature.
-
-### `GET /api/events/:id`
-
-Returns the full event object including `ticketsRemaining`.
-
-### `GET /api/tickets/:id`
-
-Returns the full ticket object.
-
-### `GET /api/events/:id/tickets`
-
-Returns all tickets for an event. Requires the organiser's address as a query parameter for authorisation.
-
----
-
-## Running tests
+Production:
 
 ```bash
-cd contract
-cargo test --features testutils -- --nocapture
+npm run start:prod
 ```
 
-Expected test coverage: event creation, ticket purchase, double-use prevention, sold-out enforcement, and cancellation.
+## 📚 Basic Example Usage
 
----
+[Video TBD]
 
-## Offline verification mode
+## 🔍 Debugging with MCP Inspector
 
-The QR signature check (HMAC verification) works without an internet connection. If the gate has no connectivity, the scanner can fall back to signature-only mode — it will accept tickets with a valid signature but cannot guarantee the ticket has not been scanned on a different device. A sync mechanism (pending scans queue → contract batch update) is listed in the roadmap.
+To debug the Stellar MCP server and monitor all interactions between the LLM and the Stellar network, you can use the MCP Inspector. This tool provides a real-time view of all requests and responses.
 
----
+### Running with MCP Inspector
 
-## Testnet resources
+Use the following command to start the server with the inspector:
 
-- Fund a testnet account: https://laboratory.stellar.org/#account-creator
-- Freighter wallet: https://freighter.app
-- Stellar Expert (testnet explorer): https://stellar.expert/explorer/testnet
-- Soroban documentation: https://soroban.stellar.org
-- Stellar JS SDK: https://stellar.github.io/js-stellar-sdk
+```bash
+npm run start:prod
+```
 
----
+```bash
+npx @modelcontextprotocol/inspector node <your/path>/stellar-mcp npm run start:prod
+```
 
-## Roadmap
+This will start the MCP Inspector on port 9229. You can then open your browser and navigate to:
 
-- [ ] Resale marketplace — transfer tickets between wallets at a capped price
-- [ ] Dynamic pricing — ticket price adjusts based on demand or time to event
-- [ ] Event analytics dashboard — sales over time, demographics, revenue by tier
-- [ ] Offline verification mode — queue scans and sync when connectivity returns
-- [ ] Tiered tickets — VIP, Early Bird, General with separate supply per tier
-- [ ] Refund flow — cancel ticket → automatic on-chain refund to buyer
-- [ ] PDF / Apple Wallet ticket export
-- [ ] WhatsApp ticket delivery
-- [ ] USDC ticket pricing
-- [ ] Multi-organiser events — co-host permissions on a single event
+```
+http://localhost:5173
+```
 
----
+The inspector will show you:
 
-## License
+- All incoming requests from the LLM
+- Outgoing responses and errors
+- Real-time Stellar network interactions
+- Detailed transaction information
 
-MIT — see [LICENSE](LICENSE).
+This is particularly useful when:
+
+- Debugging Stellar interactions
+- Monitoring transaction flows
+- Troubleshooting failed operations
+- Understanding the sequence of API calls
+
+## 📄 License
+
+This MCP server is licensed under the MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License. For more details, please see the LICENSE file in the project repository.
