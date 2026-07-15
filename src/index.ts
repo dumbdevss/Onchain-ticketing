@@ -1,4 +1,10 @@
 #!/usr/bin/env node
+/**
+ * Stellar MCP Server
+ * 
+ * A Model Context Protocol server that provides tools for interacting with
+ * the Stellar blockchain network, including both classic and Soroban operations.
+ */
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -25,6 +31,12 @@ const server = new Server(
   },
 );
 
+/**
+ * Handles tool calls from the MCP client
+ * @param name - The name of the tool to call
+ * @param args - The arguments to pass to the tool
+ * @returns The result of the tool call
+ */
 async function handleToolCall(
   name: string,
   args: any,
@@ -193,6 +205,9 @@ server.setRequestHandler(
   },
 );
 
+/**
+ * Main function to start the MCP server
+ */
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
@@ -201,6 +216,9 @@ async function main() {
 
 main().catch(console.error);
 
+/**
+ * Handle graceful shutdown when stdin is closed
+ */
 process.stdin.on('close', () => {
   console.error('Stellar MCP Server closed');
   server.close();
