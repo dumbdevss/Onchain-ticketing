@@ -44,7 +44,9 @@ async function handleToolCall(
   try {
     const stellarServer = process.env.STELLAR_SERVER_URL;
     if (!stellarServer) {
-      throw new Error('STELLAR_SERVER_URL environment variable is not set');
+      throw new Error(
+        'STELLAR_SERVER_URL environment variable is not set. Please set it to your Stellar Horizon server URL (e.g., https://horizon-testnet.stellar.org)',
+      );
     }
 
     const stellarClassic = new Classic(stellarServer);
@@ -163,7 +165,9 @@ async function handleToolCall(
           content: retrieveContractMethods,
         };
       default:
-        throw new Error(`Tool ${name} not found`);
+        throw new Error(
+          `Tool ${name} not found. Available tools: stellar_create_account, stellar_balance, stellar_payment, stellar_transactions, stellar_create_asset, stellar_change_trust, stellar_fund_account, stellar_create_claimable_balance, stellar_claim_claimable_balance, soroban_build_and_optimize, soroban_deploy, soroban_retrieve_contract_methods`,
+        );
     }
   } catch (error: any) {
     return {
