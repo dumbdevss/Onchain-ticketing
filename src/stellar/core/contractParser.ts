@@ -8,6 +8,9 @@ import {
   Visibility,
 } from '../../interfaces/soroban/ContractInterface.js';
 
+/**
+ * Regex patterns for parsing Soroban contract source code
+ */
 const REGEX_PATTERNS = {
   METHOD: /fn\s+(\w+)\s*\((.*?)\)(?:\s*->\s*(.*?))?;/,
   STRUCT: /pub struct\s+(\w+)\s*{([^}]*)}/,
@@ -16,6 +19,10 @@ const REGEX_PATTERNS = {
   SOROBAN_PREFIX: /soroban_sdk::/g,
 } as const;
 
+/**
+ * ContractParser class for parsing Soroban smart contract source code
+ * Extracts contract methods, structs, and enums from Rust source files
+ */
 export class ContractParser {
   private contractName: string | null = null;
   private contractMethods: IContractMethod[] = [];
@@ -26,26 +33,50 @@ export class ContractParser {
   private static readonly CLOSE_BRACKETS = new Set(['>', ')']);
   private static readonly COMMA = ',';
 
+  /**
+   * Initialize the parser with contract source code
+   * @param source - The Soroban contract source code to parse
+   */
   constructor(protected readonly source: string) {
     this.parseSource(source);
   }
 
+  /**
+   * Get the parsed contract name
+   * @returns The contract name or null if not found
+   */
   public getContractName(): string | null {
     return this.contractName;
   }
 
+  /**
+   * Get the parsed contract methods
+   * @returns Array of contract methods
+   */
   public getContractMethods(): IContractMethod[] {
     return this.contractMethods;
   }
 
+  /**
+   * Get the parsed contract structs
+   * @returns Array of contract structs
+   */
   public getContractStructs(): IContractStruct[] {
     return this.contractStructs;
   }
 
+  /**
+   * Get the parsed contract enums
+   * @returns Array of contract enums
+   */
   public getContractEnums(): IContractEnum[] {
     return this.contractEnums;
   }
 
+  /**
+   * Get the complete contract interface
+   * @returns The contract interface with name, methods, structs, and enums
+   */
   public getContractInterface(): IContractInterface {
     return {
       name: this.contractName as string,
@@ -55,6 +86,10 @@ export class ContractParser {
     };
   }
 
+  /**
+   * Parse the source code and extract contract components
+   * @param source - The source code to parse
+   */
   protected parseSource(source: string) {
     const lines = source.split('\n').map((line) => line.trim());
 
