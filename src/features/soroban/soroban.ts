@@ -450,7 +450,7 @@ export class Soroban extends Core {
   private async resolveContractArgs(
     contractPath: string,
   ): Promise<{ result: boolean; args: IConstructorArg[] }> {
-    const packageName = this.resolvePacakgeName(contractPath);
+    const packageName = this.resolvePackageName(contractPath);
     const contractArgs = this.readContractArgs(contractPath, packageName);
 
     if (contractArgs.length > 0) {
@@ -569,7 +569,7 @@ export class Soroban extends Core {
   }
 
   /** Derive the crate/package name from the wasm file name (strips extension). */
-  private resolvePacakgeName(contractPath: string): string {
+  private resolvePackageName(contractPath: string): string {
     return contractPath.split(/[/\\]/).pop()?.split('.')[0] || '';
   }
 
