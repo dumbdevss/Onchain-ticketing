@@ -13,6 +13,7 @@ export enum GetTransactionStatus {
   SUCCESS = 'SUCCESS',
   FAILED = 'FAILED',
   NOT_FOUND = 'NOT_FOUND',
+  PENDING = 'PENDING',
 }
 
 /**
@@ -22,4 +23,13 @@ export enum Platform {
   WINDOWS = 'win32',
   LINUX = 'linux',
   MACOS = 'darwin',
+}
+
+/**
+ * Network enumeration for Stellar networks
+ */
+export enum Network {
+  PUBLIC = 'public',
+  TESTNET = 'testnet',
+  FUTURENET = 'futurenet',
 }
