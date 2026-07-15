@@ -24,6 +24,10 @@ import {
   TrustlineParamsSchema,
 } from './schemas.js';
 
+/**
+ * Classic class for interacting with the Stellar Classic network
+ * Provides methods for account management, payments, assets, and claimable balances
+ */
 export class Classic {
   private server: Horizon.Server;
   private networkPassphrase: string;
@@ -31,6 +35,10 @@ export class Classic {
     [key: string]: { server: Horizon.Server; networkPassphrase: string };
   };
 
+  /**
+   * Initialize the Classic Stellar client
+   * @param serverUrl - The Stellar Horizon server URL
+   */
   constructor(serverUrl: string) {
     this.networkConfig = {
       testnet: {
@@ -57,6 +65,10 @@ export class Classic {
     this.networkPassphrase = config.networkPassphrase;
   }
 
+  /**
+   * Create a new Stellar account keypair
+   * @returns The public key and secret key of the new account
+   */
   async createAccount(): Promise<z.infer<typeof AccountKeyPairSchema>> {
     try {
       const keypair = Keypair.random();
@@ -71,6 +83,11 @@ export class Classic {
     }
   }
 
+  /**
+   * Get the balance of a Stellar account
+   * @param params - Object containing the account public key
+   * @returns Array of balances for the account
+   */
   async getBalance(params: {
     account: string;
   }): Promise<z.infer<typeof BalanceSchema>[]> {
@@ -85,6 +102,11 @@ export class Classic {
     }
   }
 
+  /**
+   * Create and submit a payment transaction
+   * @param params - Payment parameters including destination, amount, asset, and secret key
+   * @returns The transaction result
+   */
   async createPayment(
     params: z.infer<typeof PaymentParamsSchema>,
   ): Promise<z.infer<typeof TransactionSchema>> {
@@ -125,6 +147,11 @@ export class Classic {
     }
   }
 
+  /**
+   * Get transaction history for an account
+   * @param params - Object containing the account public key
+   * @returns Array of transactions for the account
+   */
   async getTransactions(params: {
     account: string;
   }): Promise<z.infer<typeof TransactionSchema>[]> {
