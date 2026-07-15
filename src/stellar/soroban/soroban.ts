@@ -10,6 +10,10 @@ import { IGetContractMethodsArgs } from '../../interfaces/soroban/GetContractMet
 import { ContractParser } from '../core/contractParser.js';
 import { Core } from '../core/core.js';
 
+/**
+ * Soroban class for interacting with the Stellar Soroban smart contract platform
+ * Provides methods for building, deploying, and retrieving contract information
+ */
 export class Soroban extends Core {
   private server: rpc.Server;
   private network: string;
@@ -21,6 +25,10 @@ export class Soroban extends Core {
     };
   };
 
+  /**
+   * Initialize the Soroban client
+   * @param serverUrl - The Stellar RPC server URL
+   */
   constructor(serverUrl: string) {
     super();
     this.networkConfig = getNetworkConfig(serverUrl);
@@ -36,6 +44,11 @@ export class Soroban extends Core {
     this.network = network;
   }
 
+  /**
+   * Execute the build command for a Soroban contract
+   * @param contractPath - The path to the contract directory
+   * @returns The stdout and stderr from the build command
+   */
   private async executeBuildCommand(
     contractPath: string,
   ): Promise<{ stdout: string; stderr: string }> {
@@ -145,6 +158,11 @@ export class Soroban extends Core {
     }));
   }
 
+  /**
+   * Build and optimize a Soroban contract
+   * @param params - Object containing the contract path
+   * @returns Array of output messages from the build and optimize process
+   */
   async buildAndOptimize(params: {
     contractPath: string;
   }): Promise<OutputMessage[]> {
@@ -239,6 +257,11 @@ export class Soroban extends Core {
     }
   }
 
+  /**
+   * Deploy a Soroban contract to the network
+   * @param params - Deployment parameters including wasm path, secret key, and constructor args
+   * @returns Array of output messages from the deployment process
+   */
   async deploy(params: IDeployContractArgs): Promise<OutputMessage[]> {
     try {
       await this.checkContractConstructorArgs(params);
@@ -263,6 +286,11 @@ export class Soroban extends Core {
       return errorMessage;
     }
   }
+  /**
+   * Retrieve the methods and interface of a deployed contract
+   * @param params - Object containing the contract address
+   * @returns Array of output messages with contract interface information
+   */
   async retrieveContractMethods(
     params: IGetContractMethodsArgs,
   ): Promise<OutputMessage[]> {
