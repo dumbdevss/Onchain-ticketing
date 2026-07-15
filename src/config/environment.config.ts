@@ -1,5 +1,10 @@
 import { Networks, rpc } from '@stellar/stellar-sdk';
 
+/**
+ * Get network configuration based on server URL
+ * @param serverUrl - The Stellar server URL
+ * @returns Network configuration object with server and passphrase
+ */
 function getNetworkConfig(serverUrl: string): {
   [key: string]: {
     server: rpc.Server;
