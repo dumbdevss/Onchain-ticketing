@@ -1,0 +1,83 @@
+---
+title: Configuration
+description: Environment variables and MCP client setup.
+---
+
+## Environment variables
+
+Create a `.env` file in the project root:
+
+```bash
+STELLAR_SERVER_URL=https://horizon-testnet.stellar.org
+```
+
+`STELLAR_SERVER_URL` is required — the server throws on startup if it is not set.
+
+### Available networks
+
+| Network   | URL                                        |
+| --------- | ------------------------------------------ |
+| Testnet   | `https://horizon-testnet.stellar.org`      |
+| Public    | `https://horizon.stellar.org`              |
+| Futurenet | `https://horizon-futurenet.stellar.org`    |
+
+The target network is inferred from the URL: a URL containing `testnet` selects
+Testnet, `futurenet` selects Futurenet, and anything else defaults to the public
+network.
+
+## MCP client configuration
+
+Configure your MCP client (Cursor, Windsurf, Claude Desktop, etc.) to launch the
+server. Choose one of the following.
+
+### Local installation
+
+```json
+{
+  "mcpServers": {
+    "stellar-mcp": {
+      "command": "node",
+      "args": ["/path/to/stellar-mcp/dist/index.js"]
+    }
+  }
+}
+```
+
+### NPX installation
+
+```json
+{
+  "mcpServers": {
+    "stellar-mcp": {
+      "command": "npx",
+      "args": ["-y", "stellar-mcp"]
+    }
+  }
+}
+```
+
+### Docker installation
+
+```json
+{
+  "mcpServers": {
+    "stellar-mcp": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--init",
+        "-e",
+        "STELLAR_SERVER_URL=https://horizon-testnet.stellar.org",
+        "stellar-mcp-server"
+      ]
+    }
+  }
+}
+```
+
+<Callout type="warn">
+  The server communicates over stdio. Do not print to `stdout` from custom code —
+  it is reserved for the MCP protocol. Logs are written to `stderr`.
+</Callout>

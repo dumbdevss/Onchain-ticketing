@@ -1,0 +1,65 @@
+---
+title: Soroban Tools
+description: Reference for the Soroban smart contract tools.
+---
+
+<Callout>
+  The Soroban tools shell out to the [Stellar CLI](https://developers.stellar.org/docs/tools/developer-tools/cli/stellar-cli).
+  Make sure `stellar` is installed and on your `PATH`.
+</Callout>
+
+## `soroban_build_and_optimize`
+
+Build and optimize a Soroban smart contract from source code.
+
+**Parameters**
+
+- `contractPath` (string, optional) — path to the contract directory. Defaults to
+  the current working directory.
+
+**Behavior**
+
+- Builds the contract with `stellar contract build`
+- Finds all WASM files in the target release directory
+- Optimizes each WASM file with `stellar contract optimize`
+- Returns detailed logs of the entire process
+
+## `soroban_deploy`
+
+Deploy a compiled Soroban contract to the network.
+
+**Parameters**
+
+- `wasmPath` (string, required) — path to the compiled WASM file
+- `secretKey` (string, required) — secret key of the deploying account
+- `constructorArgs` (array, optional) — arguments for the contract constructor
+  - `name` (string) — name of the constructor parameter
+  - `type` (string) — type of the argument (e.g. `Address`, `String`)
+  - `value` (string) — value of the argument
+
+**Behavior**
+
+- Detects whether the contract declares a constructor by scanning its source
+- Fails early if a constructor is required but no arguments were provided
+- Returns detailed deployment logs and the deployed contract address
+
+## `soroban_retrieve_contract_methods`
+
+Retrieve the complete interface of a deployed Soroban contract.
+
+**Parameters**
+
+- `contractAddress` (string, required) — address of the deployed contract
+  (starts with `C`)
+
+**Returns** — a structured `ContractInterface` object:
+
+- `name` — the contract name
+- `methods` — array of methods with parameters and return types
+- `structs` — array of structs with their fields
+- `enums` — array of enums with their variants (including error enums)
+
+**Behavior**
+
+- Supports all Soroban data types (primitives, structs, nested structs, enums)
+- Automatically filters out the implicit `env` parameter from method signatures

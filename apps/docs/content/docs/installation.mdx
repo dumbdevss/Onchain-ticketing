@@ -1,0 +1,44 @@
+---
+title: Installation
+description: Prerequisites, dependencies, and building the server.
+---
+
+## Prerequisites
+
+- **Node.js 18+**
+- **npm** (or yarn)
+- **Git** — for cloning the repository
+- **Stellar CLI** — required for the Soroban tools (`stellar contract build`,
+  `optimize`, `deploy`, `info`). See the
+  [Stellar CLI install guide](https://developers.stellar.org/docs/tools/developer-tools/cli/stellar-cli).
+
+## Install dependencies
+
+```bash
+git clone https://github.com/syronlabs/stellar-mcp.git
+cd stellar-mcp
+npm install
+```
+
+## Build the project
+
+```bash
+npm run build
+```
+
+This compiles the TypeScript sources in `src/` to JavaScript in `dist/`. The
+compiled entry point is `dist/index.js`, which is what MCP clients invoke.
+
+## Run from npm
+
+The server is also published to npm as `stellar-mcp`, so you can run it without
+cloning:
+
+```bash
+npx -y stellar-mcp
+```
+
+<Callout title="Next step">
+  Once installed, head to [Configuration](/docs/configuration) to point the
+  server at a Stellar network and wire it into your MCP client.
+</Callout>

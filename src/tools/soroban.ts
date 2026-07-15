@@ -1,7 +1,7 @@
 import { Tool } from '@modelcontextprotocol/sdk/types';
 import zodToJsonSchema from 'zod-to-json-schema';
 
-import * as schemas from '../stellar/soroban/schemas.js';
+import * as schemas from '../features/soroban/schemas.js';
 
 /**
  * Array of Soroban tools for the MCP server
@@ -26,7 +26,8 @@ export const sorobanTools: Tool[] = [
   },
   {
     name: 'soroban_retrieve_contract_methods',
-    description: 'Retrieve the methods and interface of a deployed Soroban contract',
+    description:
+      'Retrieve the methods and interface of a deployed Soroban contract',
     inputSchema: zodToJsonSchema(schemas.GetContractMethodsSchema) as {
       type: 'object';
       properties: Record<string, unknown>;

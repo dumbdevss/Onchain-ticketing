@@ -1,0 +1,110 @@
+---
+title: Deploying the Docs
+description: How to build and deploy this Fumadocs documentation site.
+---
+
+This documentation site is a [Fumadocs](https://fumadocs.dev) app built on
+Next.js. It lives in `apps/docs/` and is independent of the MCP server package.
+
+## Local preview
+
+```bash
+cd apps/docs
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). The docs are under `/docs`.
+
+## Production build
+
+```bash
+cd apps/docs
+npm run build
+npm run start
+```
+
+`npm run build` runs `next build`, which also runs `fumadocs-mdx` (via the
+`postinstall` script and the Next.js plugin) to generate the content source.
+
+## Deploy to Vercel (recommended)
+
+Fumadocs is a Next.js app, so Vercel is the smoothest host.
+
+1. Push the repository to GitHub.
+2. In the [Vercel dashboard](https://vercel.com/new), import the repository.
+3. Set **Root Directory** to `apps/docs` (this is the key step for a monorepo).
+4. Vercel auto-detects Next.js — leave build command and output as defaults:
+   - Build command: `next build`
+   - Install command: `npm install`
+5. Click **Deploy**.
+
+Every push to `main` then triggers a production deploy; pull requests get preview
+URLs automatically.
+
+### Via the Vercel CLI
+
+```bash
+npm i -g vercel
+cd apps/docs
+vercel        # first run links/creates the project
+vercel --prod # promote to production
+```
+
+## Deploy to Netlify
+
+1. In Netlify, **Add new site → Import an existing project**.
+2. Set **Base directory** to `apps/docs`.
+3. Build command: `npm run build`. Publish directory: `apps/docs/.next`.
+4. Add the official [`@netlify/plugin-nextjs`](https://github.com/netlify/next-runtime)
+   plugin (Netlify usually adds it automatically for Next.js sites).
+
+## Deploy as a static export
+
+If you prefer static hosting (GitHub Pages, S3, Cloudflare Pages, any CDN), export
+the site to plain HTML.
+
+1. Enable static output in `next.config.mjs`:
+
+   ```js
+   const config = {
+     reactStrictMode: true,
+     output: 'export',
+   };
+   ```
+
+2. Build:
+
+   ```bash
+   cd apps/docs
+   npm run build
+   ```
+
+3. Serve the generated `apps/docs/out/` directory from any static host.
+
+<Callout type="warn">
+  Static export disables server-only features. The built-in search still works
+  because Fumadocs uses a static search index by default, but if you later add
+  server routes (dynamic OG images, server-side search), keep the standard
+  server build and host on Vercel or Netlify instead.
+</Callout>
+
+## Deploy with Docker
+
+```dockerfile
+# apps/docs/Dockerfile
+FROM node:20-alpine AS base
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "run", "start"]
+```
+
+```bash
+cd apps/docs
+docker build -t stellar-mcp-docs .
+docker run -p 3000:3000 stellar-mcp-docs
+```

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Stellar MCP Server
- * 
+ *
  * A Model Context Protocol server that provides tools for interacting with
  * the Stellar blockchain network, including both classic and Soroban operations.
  */
@@ -15,8 +15,8 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import dotenv from 'dotenv';
 
-import { Classic } from './stellar/classic/classic.js';
-import { Soroban } from './stellar/soroban/soroban.js';
+import { Classic } from './features/classic/classic.js';
+import { Soroban } from './features/soroban/soroban.js';
 import { tools } from './tools/tools.js';
 
 dotenv.config();

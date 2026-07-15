@@ -1,0 +1,100 @@
+---
+title: Classic Tools
+description: Reference for the Stellar Classic tools.
+---
+
+## `stellar_create_account`
+
+Create a new Stellar account with a random keypair.
+
+**Returns:** the public key and secret key of the new account.
+
+## `stellar_balance`
+
+Get the balance of a Stellar account, including all assets.
+
+**Parameters**
+
+- `account` (string) — the public key of the account to check.
+
+## `stellar_payment`
+
+Send a payment to another Stellar account.
+
+**Parameters**
+
+- `destination` (string, required) — destination account public key
+- `amount` (string, required) — amount to send
+- `secretKey` (string, required) — secret key of the source account
+- `asset` (object, optional) — custom asset details
+  - `code` (string) — asset code
+  - `issuer` (string) — asset issuer public key
+
+## `stellar_transactions`
+
+Get transaction history for a Stellar account.
+
+**Parameters**
+
+- `account` (string) — the account public key to get transactions for.
+
+## `stellar_create_asset`
+
+Create a new custom asset. Builds a single transaction that establishes the
+distributor's trustline and then issues the full supply to it.
+
+**Parameters**
+
+- `code` (string, required) — asset code
+- `issuerSecretKey` (string, required) — secret key of the issuing account
+- `distributorSecretKey` (string, required) — secret key of the distributing account
+- `totalSupply` (string, required) — total supply of the asset
+
+## `stellar_change_trust`
+
+Create or modify a trustline for a custom asset.
+
+**Parameters**
+
+- `asset` (object, required)
+  - `code` (string, required) — asset code
+  - `issuer` (string, required) — asset issuer public key
+- `limit` (string, required) — the trust limit
+- `secretKey` (string, required) — secret key of the account changing trust
+
+## `stellar_create_claimable_balance`
+
+Create a claimable balance that specified accounts can claim under certain
+conditions.
+
+**Parameters**
+
+- `asset` (object, optional) — custom asset details; defaults to native XLM
+  - `code` (string) — asset code (e.g. `"USDC"`, `"EURC"`)
+  - `issuer` (string) — asset issuer public key
+- `amount` (string, required) — amount to lock
+- `claimants` (array, required) — accounts that can claim the balance
+  - `destination` (string) — public key of the claiming account
+  - `predicate` (object) — the claim condition
+    - `type` (string) — one of `UNCONDITIONAL`, `BEFORE_RELATIVE_TIME`,
+      `BEFORE_ABSOLUTE_TIME`, `NOT`, `AND`, `OR`
+    - `value` (number | array) — seconds/timestamp for time predicates, or an
+      array of nested predicates for compound predicates
+- `secretKey` (string, required) — secret key of the account creating the balance
+
+## `stellar_claim_claimable_balance`
+
+Claim a claimable balance using its ID.
+
+**Parameters**
+
+- `balanceId` (string, required) — ID of the claimable balance to claim
+- `secretKey` (string, required) — secret key of the claiming account
+
+## `stellar_fund_account`
+
+Fund a Testnet account using the Friendbot faucet.
+
+**Parameters**
+
+- `publicKey` (string) — the public key of the account to fund.

@@ -2,7 +2,7 @@ import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
-import * as schemas from '../stellar/classic/schemas.js';
+import * as schemas from '../features/classic/schemas.js';
 
 /**
  * Array of Stellar Classic tools for the MCP server

@@ -1,0 +1,52 @@
+---
+title: Overview
+description: What the Stellar MCP Server is and what it can do.
+---
+
+The **Stellar MCP Server** is a [Model Context Protocol](https://modelcontextprotocol.io)
+server that bridges AI assistants and the Stellar blockchain network. It exposes
+a standardized set of tools that let an LLM manage accounts, move value, and work
+with Soroban smart contracts.
+
+## What it can do
+
+- **Manage Stellar accounts** — create, fund, and monitor accounts
+- **Process payments** — send and receive payments across the network
+- **Handle assets** — create custom assets and manage trustlines
+- **Deploy smart contracts** — build, optimize, and deploy Soroban contracts
+- **Interact with contracts** — retrieve contract interfaces and method signatures
+- **Monitor transactions** — track transaction history and status
+
+## Feature highlights
+
+### Stellar Classic operations
+
+- Account creation and management
+- Balance inquiries
+- Payment processing
+- Asset creation and trustline management
+- Claimable balance operations
+- Transaction history retrieval
+- Testnet account funding via Friendbot
+
+### Soroban smart contract operations
+
+- Contract building and optimization
+- Contract deployment with constructor support
+- Contract interface retrieval
+- Support for complex data types (structs, enums, collections)
+- Cross-platform compatibility (Windows, Linux, macOS)
+
+### Developer experience
+
+- Type-safe TypeScript implementation
+- Comprehensive JSDoc documentation
+- Multiple deployment options (local, NPX, Docker)
+- MCP Inspector integration for debugging
+
+<Cards>
+  <Card title="Installation" href="/docs/installation" description="Install and build the server." />
+  <Card title="Configuration" href="/docs/configuration" description="Environment variables and MCP client setup." />
+  <Card title="Available Tools" href="/docs/tools" description="Reference for every Classic and Soroban tool." />
+  <Card title="Architecture" href="/docs/architecture" description="How the codebase is organized." />
+</Cards>

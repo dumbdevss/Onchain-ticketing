@@ -1,0 +1,33 @@
+---
+title: Available Tools
+description: Every tool exposed by the Stellar MCP Server.
+---
+
+The server exposes two families of tools. Each tool name maps to a `case` in the
+request handler in `src/index.ts`.
+
+## Stellar Classic
+
+| Tool                                | Purpose                                       |
+| ----------------------------------- | --------------------------------------------- |
+| `stellar_create_account`            | Create a new random keypair                   |
+| `stellar_balance`                   | Get an account's balances                     |
+| `stellar_payment`                   | Send a payment                                |
+| `stellar_transactions`              | Get an account's transaction history          |
+| `stellar_create_asset`              | Create a custom asset                         |
+| `stellar_change_trust`              | Create or modify a trustline                  |
+| `stellar_create_claimable_balance`  | Lock a balance behind claim predicates        |
+| `stellar_claim_claimable_balance`   | Claim a claimable balance                     |
+| `stellar_fund_account`              | Fund a Testnet account via Friendbot          |
+
+See the [Classic tools reference →](/docs/tools/classic)
+
+## Soroban
+
+| Tool                                 | Purpose                                      |
+| ------------------------------------ | -------------------------------------------- |
+| `soroban_build_and_optimize`         | Build and optimize a contract from source    |
+| `soroban_deploy`                     | Deploy a compiled contract                   |
+| `soroban_retrieve_contract_methods`  | Retrieve a deployed contract's interface     |
+
+See the [Soroban tools reference →](/docs/tools/soroban)

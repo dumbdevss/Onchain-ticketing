@@ -1,0 +1,67 @@
+---
+title: Architecture
+description: How the codebase is organized.
+---
+
+The server uses a **feature-based** layout: each domain (classic, soroban, core)
+owns its logic, schemas, types, and tests together, while shared types and config
+live at the top level.
+
+```
+stellar-mcp/
+├── src/
+│   ├── index.ts                     # MCP server entry point + tool routing
+│   ├── config/
+│   │   └── environment.config.ts    # Network configuration
+│   ├── shared/
+│   │   └── common.interface.ts      # Types shared across features
+│   ├── features/
+│   │   ├── classic/                 # Stellar Classic operations
+│   │   │   ├── classic.ts
+│   │   │   ├── schemas.ts
+│   │   │   └── __tests__/
+│   │   ├── soroban/                 # Soroban smart contract operations
+│   │   │   ├── soroban.ts
+│   │   │   ├── schemas.ts
+│   │   │   ├── deployContract.interface.ts
+│   │   │   ├── getContractMethods.interface.ts
+│   │   │   └── __tests__/
+│   │   └── core/                    # Cross-platform utilities
+│   │       ├── core.ts              # Platform-specific commands
+│   │       ├── messages.ts          # Message formatting
+│   │       ├── fileSystem.ts        # File system operations
+│   │       ├── contractParser.ts    # Contract source parsing
+│   │       ├── commands.interface.ts
+│   │       ├── contract.interface.ts
+│   │       └── __tests__/
+│   └── tools/                       # MCP tool definitions
+│       ├── classic.ts
+│       ├── soroban.ts
+│       └── tools.ts
+├── apps/
+│   └── docs/                        # This Fumadocs documentation site
+├── package.json
+└── tsconfig.json
+```
+
+## Layers
+
+- **Server layer** (`src/index.ts`) — MCP server implementation, tool routing,
+  and request handling.
+- **Feature layer** (`src/features/`) — blockchain logic for Classic and Soroban,
+  plus the shared `core` utilities they build on.
+- **Tool layer** (`src/tools/`) — MCP tool definitions and their JSON schemas.
+- **Shared layer** (`src/shared/`) — types used across more than one feature.
+
+## Class hierarchy
+
+The Soroban feature builds on the core utility classes through inheritance:
+
+```
+FileSystemManager        (fileSystem.ts)  — fs / path helpers
+   └── MessagesManager   (messages.ts)    — output formatting
+          └── Core       (core.ts)        — platform-specific commands
+                 └── Soroban (soroban.ts) — build / deploy / inspect
+```
+
+`Classic` (classic.ts) is independent and talks directly to the Horizon SDK.

@@ -1,0 +1,41 @@
+---
+title: Usage
+description: Running the server and debugging with the MCP Inspector.
+---
+
+## Running the server
+
+**Development mode** (hot reload via `tsx`):
+
+```bash
+npm run start:dev
+```
+
+**Production mode** (clean, build, then run the compiled output):
+
+```bash
+npm run start:prod
+```
+
+When it starts, the server prints `Stellar MCP server running` to `stderr` and
+then waits for MCP requests over stdio.
+
+## Debugging with the MCP Inspector
+
+The [MCP Inspector](https://github.com/modelcontextprotocol/inspector) lets you
+call tools interactively and watch the request/response traffic:
+
+```bash
+npx @modelcontextprotocol/inspector node /path/to/stellar-mcp/dist/index.js
+```
+
+Then open `http://localhost:5173` to explore the available tools and invoke them.
+
+## A typical flow
+
+1. Call `stellar_create_account` to generate a keypair.
+2. Call `stellar_fund_account` (Testnet only) to fund it via Friendbot.
+3. Call `stellar_balance` to confirm the balance.
+4. Use `stellar_payment`, `stellar_create_asset`, or the Soroban tools from there.
+
+See [Available Tools](/docs/tools) for the full reference.
