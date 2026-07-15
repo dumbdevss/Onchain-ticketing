@@ -30,6 +30,8 @@ export default [
   },
   prettierConfig,
   {
-    ignores: ['.eslintrc.js', 'data/docker/**'],
+    // The docs app (apps/docs) is a self-contained Next.js project with its own
+    // tooling and tsconfig; it is type-checked by its own build, not this config.
+    ignores: ['.eslintrc.js', 'data/docker/**', 'apps/**'],
   },
 ];

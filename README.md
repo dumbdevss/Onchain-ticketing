@@ -41,6 +41,7 @@ Stellar MCP Server bridges the gap between AI assistants and the Stellar blockch
 ## ✨ Features
 
 ### Stellar Classic Operations
+
 - Account creation and management
 - Balance inquiries
 - Payment processing
@@ -50,6 +51,7 @@ Stellar MCP Server bridges the gap between AI assistants and the Stellar blockch
 - Testnet account funding via Friendbot
 
 ### Soroban Smart Contract Operations
+
 - Contract building and optimization
 - Contract deployment with constructor support
 - Contract interface retrieval
@@ -57,6 +59,7 @@ Stellar MCP Server bridges the gap between AI assistants and the Stellar blockch
 - Cross-platform compatibility (Windows, Linux, macOS)
 
 ### Developer Experience
+
 - Type-safe TypeScript implementation
 - Comprehensive JSDoc documentation
 - Cross-platform support
@@ -114,7 +117,7 @@ stellar-mcp-server/
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 - Git (for cloning the repository)
 
@@ -141,6 +144,7 @@ STELLAR_SERVER_URL=https://horizon-testnet.stellar.org
 ```
 
 **Available Stellar Networks:**
+
 - **Testnet**: `https://horizon-testnet.stellar.org`
 - **Public**: `https://horizon.stellar.org`
 - **Futurenet**: `https://horizon-futurenet.stellar.org`
@@ -201,11 +205,13 @@ Configure your MCP client (Cursor, Windsurf, Claude Desktop) to use the Stellar 
 ### Running the Server
 
 **Development Mode:**
+
 ```bash
 npm run start:dev
 ```
 
 **Production Mode:**
+
 ```bash
 npm run start:prod
 ```
@@ -225,20 +231,25 @@ Then open your browser to `http://localhost:5173` to view the inspector interfac
 ### Stellar Classic Tools
 
 #### `stellar_create_account`
+
 Create a new Stellar account with a random keypair.
 
 **Returns:** Public key and secret key of the new account
 
 #### `stellar_balance`
+
 Get the balance of a Stellar account including all assets.
 
 **Parameters:**
+
 - `account` (string): The public key of the account to check balance
 
 #### `stellar_payment`
+
 Send a payment to another Stellar account.
 
 **Parameters:**
+
 - `destination` (string, required): The destination account public key
 - `amount` (string, required): The amount to send
 - `secretKey` (string, required): The secret key of the source account
@@ -247,24 +258,30 @@ Send a payment to another Stellar account.
   - `issuer` (string): The asset issuer public key
 
 #### `stellar_transactions`
+
 Get transaction history for a Stellar account.
 
 **Parameters:**
+
 - `account` (string): The account public key to get transactions for
 
 #### `stellar_create_asset`
+
 Create a new custom asset on the Stellar network.
 
 **Parameters:**
+
 - `code` (string, required): The asset code
 - `issuerSecretKey` (string, required): The secret key of the issuing account
 - `distributorSecretKey` (string, required): The secret key of the distributing account
 - `totalSupply` (string, required): The total supply of the asset
 
 #### `stellar_change_trust`
+
 Create or modify a trustline for a custom asset.
 
 **Parameters:**
+
 - `asset` (object, required):
   - `code` (string, required): The asset code
   - `issuer` (string, required): The asset issuer public key
@@ -272,9 +289,11 @@ Create or modify a trustline for a custom asset.
 - `secretKey` (string, required): The secret key of the account changing trust
 
 #### `stellar_create_claimable_balance`
+
 Create a claimable balance that can be claimed by specified accounts under certain conditions.
 
 **Parameters:**
+
 - `asset` (object, optional): Custom asset details. If not provided, uses native XLM
   - `code` (string): The asset code (e.g., "USD", "EUR")
   - `issuer` (string): The asset issuer public key
@@ -287,36 +306,45 @@ Create a claimable balance that can be claimed by specified accounts under certa
 - `secretKey` (string, required): Secret key of the account creating the balance
 
 #### `stellar_claim_claimable_balance`
+
 Claim a claimable balance using its ID.
 
 **Parameters:**
+
 - `balanceId` (string, required): ID of the claimable balance to claim
 - `secretKey` (string, required): Secret key of the claiming account
 
 #### `stellar_fund_account`
+
 Fund a testnet account using the Friendbot faucet.
 
 **Parameters:**
+
 - `publicKey` (string): The public key of the account to fund
 
 ### Soroban Tools
 
 #### `soroban_build_and_optimize`
+
 Build and optimize Soroban smart contracts from source code.
 
 **Parameters:**
+
 - `contractPath` (string, optional): The path to the contract directory. Defaults to current working directory
 
 **Features:**
+
 - Automatically builds contracts using `stellar contract build`
 - Finds all WASM files in the target directory
 - Optimizes each WASM file using `stellar contract optimize`
 - Provides detailed logs of the entire process
 
 #### `soroban_deploy`
+
 Deploy a compiled Soroban contract to the Stellar network.
 
 **Parameters:**
+
 - `wasmPath` (string, required): Path to the compiled WASM file
 - `secretKey` (string, required): Secret key of the deploying account
 - `constructorArgs` (array, optional): Arguments for contract constructor if applicable
@@ -326,25 +354,30 @@ Deploy a compiled Soroban contract to the Stellar network.
     - `value` (string): Value of the argument
 
 **Features:**
+
 - Automatically detects if contract has a constructor
 - Validates constructor arguments before deployment
 - Provides detailed deployment logs and status updates
 - Supports both simple contracts and contracts with initialization logic
 
 #### `soroban_retrieve_contract_methods`
+
 Retrieve the complete interface of a deployed Soroban smart contract.
 
 **Parameters:**
+
 - `contractAddress` (string, required): Address of the deployed contract (starts with "C")
 - `secretKey` (string, required): Secret key of the account making the query
 
 **Returns:** A structured ContractInterface object containing:
+
 - `name`: The name of the contract
 - `methods`: Array of contract methods with parameters and return types
 - `structs`: Array of contract structs with fields
 - `enums`: Array of contract enums with variants
 
 **Features:**
+
 - Supports all Soroban data types (primitives, structs, nested structs, enums)
 - Handles complex data types and nested structures
 - Automatically filters out the `env` parameter from method signatures

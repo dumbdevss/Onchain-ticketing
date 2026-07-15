@@ -9,10 +9,10 @@ changes quickly.
 
 ## Getting Started
 
-* Make sure you have a [GitHub account](https://github.com/signup/free).
-* Create a GitHub issue for your contribution, assuming one does not already exist.
-  * Clearly describe the issue, including steps to reproduce if it is a bug.
-* Fork the repository on GitHub.
+- Make sure you have a [GitHub account](https://github.com/signup/free).
+- Create a GitHub issue for your contribution, assuming one does not already exist.
+  - Clearly describe the issue, including steps to reproduce if it is a bug.
+- Fork the repository on GitHub.
 
 ### Minor Changes
 
@@ -34,23 +34,21 @@ someone is currently working on that issue in the next week or two.
 
 Of course, feel free to create a new issue if you think something needs to be added or fixed.
 
-
 ## Making Changes
 
-* Create a feature branch from where you want to base your work.
-  * This is usually the main branch.
-  * Please avoid working directly on the `main` branch.
-* Make sure you have added the necessary tests for your changes, and make sure all tests pass.
+- Create a feature branch from where you want to base your work.
+  - This is usually the main branch.
+  - Please avoid working directly on the `main` branch.
+- Make sure you have added the necessary tests for your changes, and make sure all tests pass.
 
 ## Submitting Changes
 
-* Push your changes to a topic branch in your fork of the repository.
-* Submit a pull request to the repository in the Stellar
+- Push your changes to a topic branch in your fork of the repository.
+- Submit a pull request to the repository in the Stellar
   organisation.
-  * Include a descriptive [commit message](https://github.com/erlang/otp/wiki/Writing-good-commit-messages).
-  * Changes contributed via pull request should focus on a single issue at a time.
-  * Rebase your local changes against the `main` branch. Resolve any conflicts that arise.
-
+  - Include a descriptive [commit message](https://github.com/erlang/otp/wiki/Writing-good-commit-messages).
+  - Changes contributed via pull request should focus on a single issue at a time.
+  - Rebase your local changes against the `main` branch. Resolve any conflicts that arise.
 
 At this point you're waiting on us. We like to at least comment on pull requests within three
 business days (typically, one business day). We may suggest some changes, improvements or
@@ -58,10 +56,10 @@ alternatives.
 
 # Additional Resources
 
-* [Explore our docs](https://docs.syron.tech/)
+- [Explore our docs](https://docs.syron.tech/)
 
 This document is inspired by:
 
-* https://github.com/puppetlabs/puppet/blob/master/CONTRIBUTING.md
-* https://github.com/thoughtbot/factory_girl_rails/blob/master/CONTRIBUTING.md
-* https://github.com/rust-lang/rust/blob/master/CONTRIBUTING.md
+- https://github.com/puppetlabs/puppet/blob/master/CONTRIBUTING.md
+- https://github.com/thoughtbot/factory_girl_rails/blob/master/CONTRIBUTING.md
+- https://github.com/rust-lang/rust/blob/master/CONTRIBUTING.md

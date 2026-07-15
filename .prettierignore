@@ -1,1 +1,4 @@
 /data/docker
+
+# The docs app is a self-contained Next.js project with its own tooling.
+/apps
