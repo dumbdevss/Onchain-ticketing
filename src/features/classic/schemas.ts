@@ -201,39 +201,21 @@ export const TransactionSchema = z.object({
   operation_count: z.number(),
 });
 
-export const LinksSchema = z.object({
-  self: z.object({ href: z.string() }),
-  account: z.object({ href: z.string() }),
-  ledger: z.object({ href: z.string() }),
-  operations: z.object({
-    href: z.string(),
-    templated: z.boolean().optional(),
-  }),
-  effects: z.object({
-    href: z.string(),
-    templated: z.boolean().optional(),
-  }),
-  precedes: z.object({ href: z.string() }),
-  succeeds: z.object({ href: z.string() }),
-});
-
-/** Response shape returned by the Friendbot testnet funding faucet. */
+/**
+ * Response shape returned by the Friendbot testnet funding faucet.
+ *
+ * Friendbot returns a minimal transaction-submission result — `successful`,
+ * `hash`, and `envelope_xdr` — not a full Horizon transaction record. Extra
+ * fields are preserved via `.passthrough()` so the schema stays resilient if
+ * Horizon adds fields in the future.
+ */
 export const FundbotResponseSchema = z.object({
   success: z.boolean(),
-  transaction: z.object({
-    _links: LinksSchema,
-    id: z.string(),
-    successful: z.boolean(),
-    hash: z.string(),
-    ledger: z
-      .union([z.number(), z.function()])
-      .transform((val) => (typeof val === 'function' ? 0 : val)),
-    created_at: z.string(),
-    source_account: z.string(),
-    fee_charged: z
-      .string()
-      .or(z.number())
-      .transform((val) => val.toString()),
-    operation_count: z.number(),
-  }),
+  transaction: z
+    .object({
+      successful: z.boolean(),
+      hash: z.string(),
+      envelope_xdr: z.string().optional(),
+    })
+    .passthrough(),
 });

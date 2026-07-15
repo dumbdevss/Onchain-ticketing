@@ -51,7 +51,7 @@ describe('Classic Stellar Operations', () => {
       expect(friendbot.success).toBe(true);
       expect(friendbot.transaction).toBeDefined();
       expect(friendbot.transaction.successful).toBe(true);
-      expect(friendbot.transaction.fee_charged).toBe('100');
+      expect(friendbot.transaction.hash).toEqual(expect.any(String));
     });
   });
 
