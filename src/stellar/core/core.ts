@@ -11,6 +11,10 @@ import {
 } from '../../interfaces/soroban/Commands.js';
 import { MessagesManager } from './messages.js';
 
+/**
+ * Core class for managing platform-specific commands
+ * Extends MessagesManager to provide command execution capabilities
+ */
 export class Core extends MessagesManager {
   protected linuxCommands: {
     [K in keyof CommandArgsMap]: (args: CommandArgsMap[K]) => string;
@@ -27,6 +31,12 @@ export class Core extends MessagesManager {
     this.buildWindowsCommands();
   }
 
+  /**
+   * Get the appropriate command based on the current platform
+   * @param command - The command name to execute
+   * @param args - The arguments for the command
+   * @returns The platform-specific command string
+   */
   protected getCommand<T extends CommandName>(
     command: T,
     args: CommandArgsMap[T],
@@ -36,6 +46,9 @@ export class Core extends MessagesManager {
       : this.linuxCommands[command](args);
   }
 
+  /**
+   * Build Linux-specific commands
+   */
   private buildLinuxCommands(): void {
     this.linuxCommands = {
       find: (args: IFindCommandArgs) =>
@@ -52,6 +65,9 @@ export class Core extends MessagesManager {
     };
   }
 
+  /**
+   * Build Windows-specific commands
+   */
   private buildWindowsCommands(): void {
     this.windowsCommands = {
       find: (args: IFindCommandArgs) =>
